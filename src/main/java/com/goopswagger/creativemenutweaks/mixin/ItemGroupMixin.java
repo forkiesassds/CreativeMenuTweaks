@@ -3,30 +3,44 @@ package com.goopswagger.creativemenutweaks.mixin;
 import com.goopswagger.creativemenutweaks.data.DataItemGroup;
 import com.goopswagger.creativemenutweaks.data.DataItemGroupManager;
 import com.goopswagger.creativemenutweaks.util.ItemGroupUtil;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Mixin(ItemGroup.class)
 public class ItemGroupMixin {
     @Inject(method = {"getDisplayStacks", "getSearchTabStacks"}, at = @At(value = "TAIL"), cancellable = true)
     private void getDisplayStacks(CallbackInfoReturnable<Collection<ItemStack>> cir) {
-        ItemGroup group = (((ItemGroup) (Object) this));
-        Identifier identifier = ItemGroupUtil.getGroupIdentifier(group);
-        if (DataItemGroupManager.groupData.containsKey(identifier)) {
-            DataItemGroup dataItemGroup = DataItemGroupManager.groupData.get(identifier);
-            if (dataItemGroup.replace())
-                cir.setReturnValue(dataItemGroup.entries());
-            else
-                cir.getReturnValue().addAll(dataItemGroup.entries());
-        }
+        Set<ItemStack> original = (Set<ItemStack>) cir.getReturnValue();
+        Set<ItemStack> newList = modifyStackLists(original);
+
+        if (newList != original)
+            cir.setReturnValue(newList);
+    }
+
+    @WrapOperation(
+        method = "contains",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/item/ItemGroup;searchTabStacks:Ljava/util/Set;",
+            opcode = Opcodes.GETFIELD
+        )
+    )
+    private Set<ItemStack> hijackContains(ItemGroup instance, Operation<Set<ItemStack>> original) {
+        return modifyStackLists(original.call(instance));
     }
 
     @Inject(method = "getDisplayName", at = @At(value = "RETURN"), cancellable = true)
@@ -43,5 +57,20 @@ public class ItemGroupMixin {
         Identifier identifier = ItemGroupUtil.getGroupIdentifier(group);
         if (DataItemGroupManager.groupData.containsKey(identifier))
             DataItemGroupManager.groupData.get(identifier).optionalIcon().ifPresent(cir::setReturnValue);
+    }
+
+    @Unique
+    private Set<ItemStack> modifyStackLists(Set<ItemStack> original) {
+        ItemGroup group = (((ItemGroup) (Object) this));
+        Identifier identifier = ItemGroupUtil.getGroupIdentifier(group);
+        if (DataItemGroupManager.groupData.containsKey(identifier)) {
+            DataItemGroup dataItemGroup = DataItemGroupManager.groupData.get(identifier);
+            if (dataItemGroup.replace())
+                return dataItemGroup.entries().stream().collect(Collectors.toUnmodifiableSet());
+            else
+                original.addAll(dataItemGroup.entries());
+        }
+
+        return original;
     }
 }
