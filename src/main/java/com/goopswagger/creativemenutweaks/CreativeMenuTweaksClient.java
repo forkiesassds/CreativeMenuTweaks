@@ -8,7 +8,6 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 public class CreativeMenuTweaksClient implements ClientModInitializer {
-
     @SuppressWarnings("resource")
     @Override
     public void onInitializeClient() {

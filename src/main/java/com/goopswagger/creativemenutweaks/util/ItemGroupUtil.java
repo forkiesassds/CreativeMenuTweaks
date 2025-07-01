@@ -5,7 +5,6 @@ import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 
 public class ItemGroupUtil {
-
     public static Identifier getGroupIdentifier(ItemGroup group) {
         if (group instanceof DummyItemGroup dummyGroup)
             return dummyGroup.getIdentifier();
@@ -14,5 +13,4 @@ public class ItemGroupUtil {
         }
         return null;
     }
-
 }

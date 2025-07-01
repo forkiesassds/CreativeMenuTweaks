@@ -4,6 +4,7 @@ import com.goopswagger.creativemenutweaks.data.DataItemGroupManager;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import net.fabricmc.fabric.api.client.itemgroup.v1.FabricCreativeInventoryScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -21,7 +22,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -63,7 +63,7 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
 		int offset = 0;
 		if (group == selectedTab)
 			offset = group.getRow() == ItemGroup.Row.TOP ? -1 : 3;
-		instance.drawTooltip(this.textRenderer, text, this.x + x2 - (this.textRenderer.getWidth(text)/2), this.y + y2 + (group.getRow() == ItemGroup.Row.TOP ? 2 : 32 + 12) + offset);
+		instance.drawTooltip(this.textRenderer, text, this.x + x2 - (this.textRenderer.getWidth(text) / 2), this.y + y2 + (group.getRow() == ItemGroup.Row.TOP ? 2 : 32 + 12) + offset);
 	}
 
 	@WrapOperation(method = "renderTabIcon", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lnet/minecraft/util/Identifier;IIII)V"))
@@ -73,30 +73,17 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
 			offset = group.getRow() == ItemGroup.Row.TOP ? -1 : 1;
 		}
 //		instance.drawTexture(texture, x, y + offset, u, v, width, height - offset);
-		original.call(instance, texture, x, y+offset, width, height);
+		original.call(instance, texture, x, y + offset, width, height);
 	}
 
-	@ModifyArg(method = "renderTabIcon", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawItem(Lnet/minecraft/item/ItemStack;II)V"), index = 2)
-	private int injected(int y, @Local ItemGroup group) {
+	@Inject(method = "renderTabIcon", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;getIcon()Lnet/minecraft/item/ItemStack;"))
+	private void adjustTabRenderY(DrawContext context, ItemGroup group, CallbackInfo ci, @Local(ordinal = 2) LocalIntRef y) {
 		int offset = 0;
 		if (group == selectedTab) {
 			offset = group.getRow() == ItemGroup.Row.TOP ? -2 : 4;
 		} else if (group == hoveredTab) {
 			offset = group.getRow() == ItemGroup.Row.TOP ? -1 : 1;
 		}
-		y += offset;
-		return y;
-	}
-
-	@ModifyArg(method = "renderTabIcon", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawItemInSlot(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/item/ItemStack;II)V"), index = 3)
-	private int renderTabIcon(int y, @Local ItemGroup group) {
-		int offset = 0;
-		if (group == selectedTab) {
-			offset = group.getRow() == ItemGroup.Row.TOP ? -2 : 4;
-		} else if (group == hoveredTab) {
-			offset = group.getRow() == ItemGroup.Row.TOP ? -1 : 1;
-		}
-		y += offset;
-		return y;
+		y.set(y.get() + offset);
 	}
 }

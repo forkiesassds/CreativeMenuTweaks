@@ -7,13 +7,8 @@ import com.goopswagger.creativemenutweaks.networking.payload.SyncDataGroupEntrie
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.util.Identifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CreativeMenuTweaks implements ModInitializer {
-
-    public static final Logger LOGGER = LoggerFactory.getLogger("Creative Menu Tweaks");
-
     @Override
     public void onInitialize() {
         DataItemGroupLoader.init();

@@ -45,18 +45,18 @@ public class ItemGroupMixin {
 
     @Inject(method = "getDisplayName", at = @At(value = "RETURN"), cancellable = true)
     private void getDisplayName(CallbackInfoReturnable<Text> cir) {
-        ItemGroup group = (((ItemGroup) (Object) this));
-        Identifier identifier = ItemGroupUtil.getGroupIdentifier(group);
-        if (DataItemGroupManager.groupData.containsKey(identifier))
-            DataItemGroupManager.groupData.get(identifier).optionalName().ifPresent(name -> cir.setReturnValue(Text.translatable(name)));
+        DataItemGroup data = getItemGroupData();
+
+        if (data != null)
+            data.optionalName().ifPresent(name -> cir.setReturnValue(Text.translatable(name)));
     }
 
     @Inject(method = "getIcon", at = @At(value = "RETURN"), cancellable = true)
     private void getIcon(CallbackInfoReturnable<ItemStack> cir) {
-        ItemGroup group = (((ItemGroup) (Object) this));
-        Identifier identifier = ItemGroupUtil.getGroupIdentifier(group);
-        if (DataItemGroupManager.groupData.containsKey(identifier))
-            DataItemGroupManager.groupData.get(identifier).optionalIcon().ifPresent(cir::setReturnValue);
+        DataItemGroup data = getItemGroupData();
+
+        if (data != null)
+            data.optionalIcon().ifPresent(cir::setReturnValue);
     }
 
     @Unique
@@ -67,10 +67,20 @@ public class ItemGroupMixin {
             DataItemGroup dataItemGroup = DataItemGroupManager.groupData.get(identifier);
             if (dataItemGroup.replace())
                 return dataItemGroup.entries().stream().collect(Collectors.toUnmodifiableSet());
-            else
-                original.addAll(dataItemGroup.entries());
+
+            original.addAll(dataItemGroup.entries());
         }
 
         return original;
+    }
+
+    @Unique
+    private DataItemGroup getItemGroupData() {
+        ItemGroup group = (((ItemGroup) (Object) this));
+        Identifier identifier = ItemGroupUtil.getGroupIdentifier(group);
+        if (DataItemGroupManager.groupData.containsKey(identifier))
+            return DataItemGroupManager.groupData.get(identifier);
+
+        return null;
     }
 }

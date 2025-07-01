@@ -12,16 +12,19 @@ import net.minecraft.util.Identifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DataItemGroupManager {
     public static final HashMap<Identifier, DataItemGroup> groupData = Maps.newHashMap();
 
-    public static List<Map.Entry<Identifier, DataItemGroup>> getModifiedGroups() {
-        return groupData.entrySet().stream().filter(dataItemGroup -> Registries.ITEM_GROUP.get(dataItemGroup.getKey()) != null).toList();
+    public static Map<Identifier, DataItemGroup> getModifiedGroups() {
+        return groupData.entrySet().stream().filter(dataItemGroup -> Registries.ITEM_GROUP.get(dataItemGroup.getKey()) != null)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    public static List<Map.Entry<Identifier, DataItemGroup>> getCustomGroups() {
-         return groupData.entrySet().stream().filter(dataItemGroup -> Registries.ITEM_GROUP.get(dataItemGroup.getKey()) == null).toList();
+    public static Map<Identifier, DataItemGroup> getCustomGroups() {
+         return groupData.entrySet().stream().filter(dataItemGroup -> Registries.ITEM_GROUP.get(dataItemGroup.getKey()) == null)
+                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public static boolean update = false;

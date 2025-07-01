@@ -1,5 +1,6 @@
 package com.goopswagger.creativemenutweaks.mixin;
 
+import com.goopswagger.creativemenutweaks.data.DataItemGroup;
 import com.goopswagger.creativemenutweaks.data.DataItemGroupManager;
 import com.goopswagger.creativemenutweaks.util.DummyItemGroup;
 import net.minecraft.item.ItemGroup;
@@ -18,21 +19,21 @@ import java.util.stream.Stream;
 public abstract class ItemGroupsMixin {
     @Shadow
     private static Stream<ItemGroup> stream() {
-        return null;
+        throw new RuntimeException("Mixin failed.");
     }
 
     @Inject(method = {"getGroupsToDisplay", "getGroups"}, at = @At(value = "TAIL"), cancellable = true)
     private static void getGroups(CallbackInfoReturnable<List<ItemGroup>> cir) {
         List<ItemGroup> groups = new ArrayList<>(cir.getReturnValue());
-        final int[] offset = {0};
-        DataItemGroupManager.getCustomGroups().forEach((entry) -> {
-            DummyItemGroup group = entry.getValue().getDummyItemGroup();
+        int offset = 0;
+        for (DataItemGroup data : DataItemGroupManager.getCustomGroups().values()) {
+            DummyItemGroup group = data.getDummyItemGroup();
             if (!groups.contains(group)) {
-                group.adjust(stream(), offset[0]);
+                group.adjust(stream(), offset);
                 groups.add(group);
-                offset[0]++;
+                offset++;
             }
-        });
+        }
         cir.setReturnValue(groups);
     }
 }
