@@ -1,7 +1,6 @@
 package com.goopswagger.creativemenutweaks.util;
 
-import net.fabricmc.fabric.impl.itemgroup.FabricItemGroup;
-import net.fabricmc.fabric.mixin.itemgroup.ItemGroupAccessor;
+import net.fabricmc.fabric.impl.itemgroup.FabricItemGroupImpl;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -11,8 +10,9 @@ import net.minecraft.util.Identifier;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class DummyItemGroup extends ItemGroup implements FabricItemGroup {
-    private static final int TABS_PER_PAGE = FabricItemGroup.TABS_PER_PAGE;
+@SuppressWarnings("UnstableApiUsage")
+public class DummyItemGroup extends ItemGroup implements FabricItemGroupImpl {
+    private static final int TABS_PER_PAGE = FabricItemGroupImpl.TABS_PER_PAGE;
     private final Identifier identifier;
 
     private int page;
@@ -46,12 +46,12 @@ public class DummyItemGroup extends ItemGroup implements FabricItemGroup {
     }
 
     @Override
-    public int getPage() {
+    public int fabric_getPage() {
         return page;
     }
 
     @Override
-    public void setPage(int page) {
+    public void fabric_setPage(int page) {
 
     }
 }

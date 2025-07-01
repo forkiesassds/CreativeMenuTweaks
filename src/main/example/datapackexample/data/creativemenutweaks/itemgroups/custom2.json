@@ -17,6 +17,6 @@
     }
   ],
   "loot_tables": [
-    "jolted:items/alloy_forge"
+    "minecraft:chests/ancient_city"
   ]
 }

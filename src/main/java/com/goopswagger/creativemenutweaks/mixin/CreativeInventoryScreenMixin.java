@@ -4,7 +4,7 @@ import com.goopswagger.creativemenutweaks.data.DataItemGroupManager;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.fabricmc.fabric.impl.client.itemgroup.CreativeGuiExtensions;
+import net.fabricmc.fabric.api.client.itemgroup.v1.FabricCreativeInventoryScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -16,14 +16,12 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -42,8 +40,8 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
 	@Inject(method = "init", at = @At(value = "TAIL"))
 	private void init(CallbackInfo ci) {
 		if (DataItemGroupManager.update) {
-			while (((CreativeGuiExtensions) this).fabric_currentPage() > 0)
-				((CreativeGuiExtensions) this).fabric_previousPage();
+			while (((FabricCreativeInventoryScreen) this).getCurrentPage() > 0)
+				((FabricCreativeInventoryScreen) this).switchToPreviousPage();
 			DataItemGroupManager.update = false;
 		}
 	}

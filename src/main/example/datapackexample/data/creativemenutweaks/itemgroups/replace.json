@@ -5,7 +5,7 @@
     "id": "minecraft:carrot",
     "Count": 1
   },
-  "replace": false,
+  "replace": true,
   "entries": [
     {
       "id": "minecraft:potato",

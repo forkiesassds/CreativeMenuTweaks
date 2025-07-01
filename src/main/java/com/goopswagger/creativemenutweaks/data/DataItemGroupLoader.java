@@ -6,12 +6,10 @@ import com.goopswagger.creativemenutweaks.CreativeMenuTweaks;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 
 import java.io.BufferedReader;
@@ -25,7 +23,7 @@ public class DataItemGroupLoader {
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
             @Override
             public Identifier getFabricId() {
-                return new Identifier("creativemenutweaks", "itemgroups");
+                return CreativeMenuTweaks.makeModID("itemgroups");
             }
 
             @Override
@@ -36,7 +34,7 @@ public class DataItemGroupLoader {
                     try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream())) ) {
                         JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
                         DataResult<DataItemGroup> result = DataItemGroup.CODEC.parse(JsonOps.INSTANCE, json);
-                        DataItemGroup groupOutput = result.getOrThrow(false, System.out::println);
+                        DataItemGroup groupOutput = result.getOrThrow();
                         DataItemGroupManager.groupData.put(groupOutput.id, groupOutput);
                     } catch (IOException e) {
                         CreativeMenuTweaks.LOGGER.error("Error occurred while loading itemgroup json: " + identifier.toString(), e);
