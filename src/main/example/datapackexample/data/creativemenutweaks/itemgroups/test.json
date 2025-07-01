@@ -3,13 +3,20 @@
   "name": "diphit.city",
   "icon": {
     "id": "minecraft:potato",
-    "Count": 1
+    "count": 1
   },
   "replace": false,
   "entries": [
     {
       "id": "minecraft:potato",
-      "Count": 1
+      "count": 1,
+      "components": {
+        "custom_name": "{\"text\": \"Tater (real?)\"}",
+        "enchantments": {
+          "sharpness": 5,
+          "mending": 1
+        }
+      }
     }
   ]
 }

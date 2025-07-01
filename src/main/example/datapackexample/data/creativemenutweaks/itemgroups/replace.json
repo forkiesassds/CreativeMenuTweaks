@@ -3,13 +3,13 @@
   "name": "diphit.city",
   "icon": {
     "id": "minecraft:carrot",
-    "Count": 1
+    "count": 1
   },
   "replace": true,
   "entries": [
     {
       "id": "minecraft:potato",
-      "Count": 1
+      "count": 1
     }
   ]
 }

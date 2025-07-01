@@ -6,8 +6,11 @@ import com.goopswagger.creativemenutweaks.CreativeMenuTweaks;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
@@ -18,30 +21,11 @@ import java.io.InputStreamReader;
 import java.util.function.Predicate;
 
 public class DataItemGroupLoader {
+    public static RegistryKey<Registry<DataItemGroup>> ITEM_GROUPS = RegistryKey.ofRegistry(Identifier.of("itemgroups"));
+
 
     public static void init() {
-        ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
-            @Override
-            public Identifier getFabricId() {
-                return CreativeMenuTweaks.makeModID("itemgroups");
-            }
-
-            @Override
-            public void reload(ResourceManager manager) {
-                DataItemGroupManager.clear();
-                Predicate<Identifier> predicate = identifier -> identifier.toString().endsWith(".json");
-                manager.findResources("itemgroups", predicate).forEach((identifier, resource) -> {
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream())) ) {
-                        JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
-                        DataResult<DataItemGroup> result = DataItemGroup.CODEC.parse(JsonOps.INSTANCE, json);
-                        DataItemGroup groupOutput = result.getOrThrow();
-                        DataItemGroupManager.groupData.put(groupOutput.id, groupOutput);
-                    } catch (IOException e) {
-                        CreativeMenuTweaks.LOGGER.error("Error occurred while loading itemgroup json: " + identifier.toString(), e);
-                    }
-                });
-            }
-        });
+        DynamicRegistries.register(ITEM_GROUPS, DataItemGroup.CODEC);
 
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> {
             if (joined) {
@@ -50,9 +34,13 @@ public class DataItemGroupLoader {
         });
 
         // frankly i don't know whats goin on here
-        ServerLifecycleEvents.SERVER_STARTED.register((server) -> DataItemGroupManager.groupData.forEach((identifier, dataItemGroup) -> dataItemGroup.parseLootTable(server)));
+        ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
+            DataItemGroupManager.setup(server.getReloadableRegistries());
+            DataItemGroupManager.groupData.forEach((identifier, dataItemGroup) -> dataItemGroup.parseLootTable(server));
+        });
 
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resource, success) -> {
+            DataItemGroupManager.setup(server.getReloadableRegistries());
             DataItemGroupManager.groupData.forEach((identifier, dataItemGroup) -> dataItemGroup.parseLootTable(server));
             server.getPlayerManager().getPlayerList().forEach(DataItemGroupManager::sync);
         });

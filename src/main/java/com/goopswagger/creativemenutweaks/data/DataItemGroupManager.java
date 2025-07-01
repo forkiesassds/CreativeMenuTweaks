@@ -4,6 +4,8 @@ import com.google.common.collect.Maps;
 import com.goopswagger.creativemenutweaks.networking.payload.ClearDataGroupManagerPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.ReloadableRegistries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
@@ -27,6 +29,16 @@ public class DataItemGroupManager {
     public static void clear() {
         groupData.clear();
         update = true;
+    }
+
+    public static void setup(ReloadableRegistries.Lookup lookup) {
+        Registry<DataItemGroup> registry = lookup.getRegistryManager().get(DataItemGroupLoader.ITEM_GROUPS);
+        List<DataItemGroup> list = registry.stream().toList();
+
+        for (DataItemGroup groupOutput : list) {
+            System.out.println("wario");
+            groupData.put(groupOutput.id, groupOutput);
+        }
     }
 
     public static void sync(ServerPlayerEntity player) {
