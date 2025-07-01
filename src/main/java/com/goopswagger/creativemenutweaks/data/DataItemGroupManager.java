@@ -36,7 +36,6 @@ public class DataItemGroupManager {
         List<DataItemGroup> list = registry.stream().toList();
 
         for (DataItemGroup groupOutput : list) {
-            System.out.println("wario");
             groupData.put(groupOutput.id, groupOutput);
         }
     }
