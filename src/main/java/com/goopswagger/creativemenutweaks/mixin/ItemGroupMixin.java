@@ -17,8 +17,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Mixin(ItemGroup.class)
 public class ItemGroupMixin {
@@ -78,7 +78,7 @@ public class ItemGroupMixin {
         if (DataItemGroupManager.groupData.containsKey(identifier)) {
             DataItemGroup dataItemGroup = DataItemGroupManager.groupData.get(identifier);
             if (dataItemGroup.replace())
-                return dataItemGroup.entries().stream().collect(Collectors.toUnmodifiableSet());
+                return new HashSet<>(dataItemGroup.entries());
 
             original.addAll(dataItemGroup.entries());
         }
