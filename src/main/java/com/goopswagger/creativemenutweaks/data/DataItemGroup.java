@@ -5,7 +5,6 @@ import com.goopswagger.creativemenutweaks.networking.payload.SyncDataGroupEntrie
 import com.goopswagger.creativemenutweaks.util.DummyItemGroup;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootTable;
@@ -20,7 +19,6 @@ import net.minecraft.registry.ReloadableRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;

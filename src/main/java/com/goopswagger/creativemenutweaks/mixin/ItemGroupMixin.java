@@ -25,7 +25,7 @@ public class ItemGroupMixin {
     @Inject(method = {"getDisplayStacks", "getSearchTabStacks"}, at = @At(value = "TAIL"), cancellable = true)
     private void getDisplayStacks(CallbackInfoReturnable<Collection<ItemStack>> cir) {
         Set<ItemStack> original = (Set<ItemStack>) cir.getReturnValue();
-        Set<ItemStack> newList = modifyStackLists(original);
+        Collection<ItemStack> newList = modifyStackLists(original);
 
         if (newList != original)
             cir.setReturnValue(newList);
@@ -40,6 +40,18 @@ public class ItemGroupMixin {
         )
     )
     private Set<ItemStack> hijackContains(ItemGroup instance, Operation<Set<ItemStack>> original) {
+        return (Set<ItemStack>) modifyStackLists(original.call(instance));
+    }
+
+    @WrapOperation(
+        method = "hasStacks",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/item/ItemGroup;displayStacks:Ljava/util/Collection;",
+            opcode = Opcodes.GETFIELD
+        )
+    )
+    private Collection<ItemStack> hijackHasStacks(ItemGroup instance, Operation<Collection<ItemStack>> original) {
         return modifyStackLists(original.call(instance));
     }
 
@@ -60,7 +72,7 @@ public class ItemGroupMixin {
     }
 
     @Unique
-    private Set<ItemStack> modifyStackLists(Set<ItemStack> original) {
+    private Collection<ItemStack> modifyStackLists(Collection<ItemStack> original) {
         ItemGroup group = (((ItemGroup) (Object) this));
         Identifier identifier = ItemGroupUtil.getGroupIdentifier(group);
         if (DataItemGroupManager.groupData.containsKey(identifier)) {

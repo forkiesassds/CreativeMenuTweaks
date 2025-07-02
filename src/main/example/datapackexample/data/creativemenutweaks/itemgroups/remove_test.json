@@ -1,0 +1,10 @@
+{
+  "id": "minecraft:spawn_eggs",
+  "name": "tetstsyrss",
+  "icon": {
+    "id": "minecraft:carrot",
+    "count": 1
+  },
+  "replace": true,
+  "entries": []
+}
