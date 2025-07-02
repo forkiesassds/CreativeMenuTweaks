@@ -17,7 +17,7 @@ public class CreativeMenuTweaksClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(SyncDataGroupCategoryPayload.ID, (payload, context) ->
                 context.client().execute(() -> DataItemGroupManager.groupData.put(payload.id(), payload.group())));
         ClientPlayNetworking.registerGlobalReceiver(SyncDataGroupEntriesPayload.ID, (payload, context) ->
-                context.client().execute(() -> DataItemGroupManager.groupData.get(payload.id()).entries.addAll(payload.stackList())));
+                context.client().execute(() -> DataItemGroupManager.groupData.get(payload.id()).items.addAll(payload.stackList())));
 
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             client.execute(DataItemGroupManager::clear);

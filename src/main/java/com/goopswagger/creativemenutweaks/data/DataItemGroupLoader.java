@@ -29,12 +29,12 @@ public class DataItemGroupLoader {
     public static void onServerStarted(MinecraftServer server) {
         // frankly i don't know whats goin on here
         DataItemGroupManager.setup(server.getReloadableRegistries());
-        DataItemGroupManager.groupData.forEach((identifier, dataItemGroup) -> dataItemGroup.parseLootTable(server));
+        DataItemGroupManager.groupData.forEach((identifier, dataItemGroup) -> dataItemGroup.setupItems(server));
     }
 
     public static void afterDataPackReload(MinecraftServer server, LifecycledResourceManager resource, boolean success) {
         DataItemGroupManager.setup(server.getReloadableRegistries());
-        DataItemGroupManager.groupData.forEach((identifier, dataItemGroup) -> dataItemGroup.parseLootTable(server));
+        DataItemGroupManager.groupData.forEach((identifier, dataItemGroup) -> dataItemGroup.setupItems(server));
         server.getPlayerManager().getPlayerList().forEach(DataItemGroupManager::sync);
     }
 }

@@ -3,9 +3,11 @@ package com.goopswagger.creativemenutweaks.data;
 import com.goopswagger.creativemenutweaks.networking.payload.SyncDataGroupCategoryPayload;
 import com.goopswagger.creativemenutweaks.networking.payload.SyncDataGroupEntriesPayload;
 import com.goopswagger.creativemenutweaks.util.DummyItemGroup;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.context.LootContextParameterSet;
@@ -13,9 +15,9 @@ import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.ReloadableRegistries;
+import net.minecraft.registry.*;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -26,17 +28,42 @@ import java.util.List;
 import java.util.Optional;
 
 public class DataItemGroup {
+    public record Entry(Optional<ItemStack> item, Optional<TagKey<Item>> tag, Optional<RegistryKey<LootTable>> lootTable) {
+        public static final Codec<Entry> CODEC = Codec.xor(
+                ItemStack.CODEC,
+                Codec.xor(
+                        TagKey.codec(RegistryKeys.ITEM).fieldOf("tag").codec(),
+                        RegistryKey.createCodec(RegistryKeys.LOOT_TABLE).fieldOf("loot_table").codec()
+                )
+        ).xmap(Entry::fromEither, Entry::toEither);
+
+        private static Entry fromEither(Either<ItemStack, Either<TagKey<Item>, RegistryKey<LootTable>>> either) {
+            if (either.right().isEmpty())
+                return new Entry(either.left(), Optional.empty(), Optional.empty());
+
+            return new Entry(either.left(), either.right().get().left(), either.right().get().right());
+        }
+
+        @SuppressWarnings("unchecked")
+        private static Either<ItemStack, Either<TagKey<Item>, RegistryKey<LootTable>>> toEither(Object o) {
+            return o instanceof ItemStack ?
+                    Either.left((ItemStack) o) :
+                    Either.right(o instanceof TagKey<?> ?
+                            Either.left((TagKey<Item>) o) :
+                            Either.right((RegistryKey<LootTable>) o)
+                    );
+        }
+    }
+
     public static final Codec<DataItemGroup> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                             Identifier.CODEC.fieldOf("id").forGetter(DataItemGroup::id),
                             Codec.STRING.optionalFieldOf("name").forGetter(dataItemGroup -> Optional.ofNullable(dataItemGroup.name())),
                             ItemStack.CODEC.optionalFieldOf("icon").forGetter(dataItemGroup -> Optional.ofNullable(dataItemGroup.icon)),
                             Codec.BOOL.optionalFieldOf("replace").forGetter(dataItemGroup -> Optional.of(dataItemGroup.replace)),
-                            ItemStack.CODEC.listOf().optionalFieldOf("entries").forGetter(dataItemGroup -> Optional.ofNullable(dataItemGroup.entries)),
-                            RegistryKey.createCodec(RegistryKeys.LOOT_TABLE).listOf().optionalFieldOf("loot_tables").forGetter(dataItemGroup -> Optional.ofNullable(dataItemGroup.lootTables)))
+                            Entry.CODEC.listOf().optionalFieldOf("entries").forGetter(dataItemGroup -> Optional.ofNullable(dataItemGroup.entries)))
                     .apply(instance, DataItemGroup::new));
 
-    @SuppressWarnings("unchecked")
     public static final PacketCodec<RegistryByteBuf, DataItemGroup> PACKET_CODEC = PacketCodec.tuple(
             Identifier.PACKET_CODEC, DataItemGroup::id,
             PacketCodecs.STRING.collect(PacketCodecs::optional), dataItemGroup -> Optional.ofNullable(dataItemGroup.name()),
@@ -49,38 +76,55 @@ public class DataItemGroup {
     public final String name;
     public final ItemStack icon;
     public final boolean replace;
-    public final List<ItemStack> entries;
-    public final List<RegistryKey<LootTable>> lootTables;
+    private final List<Entry> entries;
 
-    public DataItemGroup(Identifier id, Optional<String> name, Optional<ItemStack> icon, Optional<Boolean> replace, Optional<List<ItemStack>> entries, Optional<List<RegistryKey<LootTable>>> lootTables) {
+    public final List<ItemStack> items = new ArrayList<>();
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public DataItemGroup(Identifier id, Optional<String> name, Optional<ItemStack> icon, Optional<Boolean> replace, Optional<List<Entry>> entries) {
         this.id = id;
         this.name = name.orElse(null);
         this.icon = icon.orElse(null);
         this.replace = replace.orElse(false);
         this.entries = new ArrayList<>();
         entries.ifPresent(this.entries::addAll);
-        this.lootTables = lootTables.orElse(new ArrayList<>());
 
         makeDummyGroup(id);
     }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public DataItemGroup(Identifier id, Optional<String> name, Optional<ItemStack> icon, Optional<Boolean> replace) {
-        this(id, name, icon, replace, Optional.empty(), Optional.empty());
+        this(id, name, icon, replace, Optional.empty());
     }
 
-    public void parseLootTable(MinecraftServer server) {
-        List<ItemStack> lootTables = new ArrayList<>();
-
-        LootContextParameterSet context = new LootContextParameterSet.Builder(server.getWorld(World.OVERWORLD)).build(LootContextTypes.EMPTY);
+    public void setupItems(MinecraftServer server) {
         ReloadableRegistries.Lookup registries = server.getReloadableRegistries();
+        Registry<Item> itemRegistry = registries.getRegistryManager().get(RegistryKeys.ITEM);
 
-        for (RegistryKey<LootTable> lootTableId : this.lootTables) {
-            LootTable lootTable = registries.getLootTable(lootTableId);
-            assert lootTable != null;
+        for (Entry entry : entries) {
+            entry.item.ifPresent(this.items::add);
 
-            lootTables.addAll(lootTable.generateLoot(context));
+            entry.tag.ifPresent(tagKey ->
+                    Registries.ITEM.streamTagsAndEntries().forEach(pair -> {
+                        if (pair.getFirst() == tagKey) {
+                            for (RegistryEntry<Item> r : pair.getSecond()) {
+                                Identifier id = r.getKey().orElseThrow().getValue();
+                                Item item = itemRegistry.get(id);
+
+                                assert item != null;
+                                this.items.add(item.getDefaultStack());
+                            }
+                        }
+                    }));
+
+            entry.lootTable.ifPresent(lootTableId -> {
+                LootContextParameterSet context = new LootContextParameterSet.Builder(server.getWorld(World.OVERWORLD)).build(LootContextTypes.EMPTY);
+
+                LootTable lootTable = registries.getLootTable(lootTableId);
+                assert lootTable != null;
+                this.items.addAll(lootTable.generateLoot(context));
+            });
         }
-        this.entries.addAll(lootTables);
     }
 
     private DummyItemGroup dummyItemGroup;
@@ -117,26 +161,22 @@ public class DataItemGroup {
         return replace;
     }
 
-    public List<ItemStack> entries() {
+    public List<ItemStack> items() {
+        return items;
+    }
+
+    public List<Entry> entries() {
         return entries;
     }
 
-    public List<RegistryKey<LootTable>> lootTables() {
-        return lootTables;
-    }
-
     public void sync(ServerPlayerEntity player) {
-        ServerPlayNetworking.send(player, new SyncDataGroupCategoryPayload(this.id, this.strip()));
+        ServerPlayNetworking.send(player, new SyncDataGroupCategoryPayload(this.id, this));
 
         int size = 16;
-        for (int start = 0; start < entries.size(); start += size) {
-            int end = Math.min(start + size, entries.size());
-            List<ItemStack> sublist = entries.subList(start, end);
+        for (int start = 0; start < items.size(); start += size) {
+            int end = Math.min(start + size, items.size());
+            List<ItemStack> sublist = items.subList(start, end);
             ServerPlayNetworking.send(player, new SyncDataGroupEntriesPayload(this.id, sublist));
         }
-    }
-
-    private DataItemGroup strip() {
-        return new DataItemGroup(this.id, optionalName(), optionalIcon(), Optional.of(replace()), Optional.empty(), Optional.empty());
     }
 }

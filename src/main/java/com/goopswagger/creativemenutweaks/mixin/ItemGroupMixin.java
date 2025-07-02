@@ -78,9 +78,9 @@ public class ItemGroupMixin {
         if (DataItemGroupManager.groupData.containsKey(identifier)) {
             DataItemGroup dataItemGroup = DataItemGroupManager.groupData.get(identifier);
             if (dataItemGroup.replace())
-                return new HashSet<>(dataItemGroup.entries());
+                return new HashSet<>(dataItemGroup.items());
 
-            original.addAll(dataItemGroup.entries());
+            original.addAll(dataItemGroup.items());
         }
 
         return original;

@@ -1,6 +1,8 @@
 package com.goopswagger.creativemenutweaks.mixin;
 
+import com.goopswagger.creativemenutweaks.data.DataItemGroup;
 import com.goopswagger.creativemenutweaks.data.DataItemGroupManager;
+import com.goopswagger.creativemenutweaks.util.DummyItemGroup;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -14,6 +16,7 @@ import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -34,6 +37,7 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
 		super(screenHandler, playerInventory, text);
 	}
 
+	@Shadow protected abstract void setSelectedTab(ItemGroup group);
 	@Shadow protected abstract int getTabX(ItemGroup group);
 	@Shadow protected abstract int getTabY(ItemGroup group);
 
@@ -42,6 +46,20 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
 		if (DataItemGroupManager.update) {
 			while (((FabricCreativeInventoryScreen) this).getCurrentPage() > 0)
 				((FabricCreativeInventoryScreen) this).switchToPreviousPage();
+
+			if (selectedTab instanceof DummyItemGroup dummy) {
+				Identifier id = dummy.getIdentifier();
+
+				ItemGroup group = ItemGroups.getDefaultTab();
+				if (DataItemGroupManager.groupData.containsKey(id)) {
+					DataItemGroup dataItemGroup = DataItemGroupManager.groupData.get(id);
+					group = dataItemGroup.getDummyItemGroup();
+				}
+
+				selectedTab = group;
+				setSelectedTab(group);
+			}
+
 			DataItemGroupManager.update = false;
 		}
 	}

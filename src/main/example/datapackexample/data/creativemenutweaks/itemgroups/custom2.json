@@ -8,15 +8,21 @@
   "replace": false,
   "entries": [
     {
+      "tag": "#minecraft:piglin_loved"
+    },
+    {
       "id": "minecraft:redstone",
       "count": 1
     },
     {
+      "loot_table": "minecraft:chests/ancient_city"
+    },
+    {
       "id": "minecraft:redstone_block",
       "count": 1
+    },
+    {
+      "tag": "#minecraft:wool"
     }
-  ],
-  "loot_tables": [
-    "minecraft:chests/ancient_city"
   ]
 }
