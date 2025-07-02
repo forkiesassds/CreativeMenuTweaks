@@ -26,32 +26,77 @@ import net.minecraft.world.World;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class DataItemGroup {
-    public record Entry(Optional<ItemStack> item, Optional<TagKey<Item>> tag, Optional<RegistryKey<LootTable>> lootTable) {
-        public static final Codec<Entry> CODEC = Codec.xor(
-                ItemStack.CODEC,
+    public interface Entry {
+        Codec<Entry> CODEC = Codec.xor(
+                ItemEntry.CODEC,
                 Codec.xor(
-                        TagKey.codec(RegistryKeys.ITEM).fieldOf("tag").codec(),
-                        RegistryKey.createCodec(RegistryKeys.LOOT_TABLE).fieldOf("loot_table").codec()
+                        TagEntry.CODEC,
+                        LootTableEntry.CODEC
                 )
         ).xmap(Entry::fromEither, Entry::toEither);
 
-        private static Entry fromEither(Either<ItemStack, Either<TagKey<Item>, RegistryKey<LootTable>>> either) {
-            if (either.right().isEmpty())
-                return new Entry(either.left(), Optional.empty(), Optional.empty());
-
-            return new Entry(either.left(), either.right().get().left(), either.right().get().right());
+        private static Entry fromEither(Either<ItemEntry, Either<TagEntry, LootTableEntry>> either) {
+            return either.map(Function.identity(), Either::unwrap);
         }
 
-        @SuppressWarnings("unchecked")
-        private static Either<ItemStack, Either<TagKey<Item>, RegistryKey<LootTable>>> toEither(Object o) {
-            return o instanceof ItemStack ?
-                    Either.left((ItemStack) o) :
-                    Either.right(o instanceof TagKey<?> ?
-                            Either.left((TagKey<Item>) o) :
-                            Either.right((RegistryKey<LootTable>) o)
+        private static Either<ItemEntry, Either<TagEntry, LootTableEntry>> toEither(Entry o) {
+            return o instanceof ItemEntry ?
+                    Either.left((ItemEntry) o) :
+                    Either.right(o instanceof TagEntry ?
+                            Either.left((TagEntry) o) :
+                            Either.right((LootTableEntry) o)
                     );
+        }
+
+        void addItems(List<ItemStack> items, MinecraftServer server);
+
+        record ItemEntry(ItemStack item) implements Entry {
+            public static final Codec<ItemEntry> CODEC = ItemStack.CODEC.xmap(ItemEntry::new, ItemEntry::item);
+
+            @Override
+            public void addItems(List<ItemStack> items, MinecraftServer server) {
+                items.add(item);
+            }
+        }
+
+        record TagEntry(TagKey<Item> tag) implements Entry {
+            public static final Codec<TagEntry> CODEC = TagKey.codec(RegistryKeys.ITEM).fieldOf("tag").codec().xmap(TagEntry::new, TagEntry::tag);
+
+            @Override
+            public void addItems(List<ItemStack> items, MinecraftServer server) {
+                ReloadableRegistries.Lookup registries = server.getReloadableRegistries();
+                Registry<Item> itemRegistry = registries.getRegistryManager().get(RegistryKeys.ITEM);
+
+                Registries.ITEM.streamTagsAndEntries().forEach(pair -> {
+                    if (pair.getFirst() == tag) {
+                        for (RegistryEntry<Item> r : pair.getSecond()) {
+                            Identifier id = r.getKey().orElseThrow().getValue();
+                            Item item = itemRegistry.get(id);
+
+                            assert item != null;
+                            items.add(item.getDefaultStack());
+                        }
+                    }
+                });
+            }
+        }
+
+        record LootTableEntry(RegistryKey<LootTable> lootTableId) implements Entry {
+            public static final Codec<LootTableEntry> CODEC = RegistryKey.createCodec(RegistryKeys.LOOT_TABLE).fieldOf("loot_table")
+                    .codec().xmap(LootTableEntry::new, LootTableEntry::lootTableId);
+
+            @Override
+            public void addItems(List<ItemStack> items, MinecraftServer server) {
+                ReloadableRegistries.Lookup registries = server.getReloadableRegistries();
+                LootContextParameterSet context = new LootContextParameterSet.Builder(server.getWorld(World.OVERWORLD)).build(LootContextTypes.EMPTY);
+
+                LootTable lootTable = registries.getLootTable(lootTableId);
+                assert lootTable != null;
+                items.addAll(lootTable.generateLoot(context));
+            }
         }
     }
 
@@ -98,32 +143,8 @@ public class DataItemGroup {
     }
 
     public void setupItems(MinecraftServer server) {
-        ReloadableRegistries.Lookup registries = server.getReloadableRegistries();
-        Registry<Item> itemRegistry = registries.getRegistryManager().get(RegistryKeys.ITEM);
-
         for (Entry entry : entries) {
-            entry.item.ifPresent(this.items::add);
-
-            entry.tag.ifPresent(tagKey ->
-                    Registries.ITEM.streamTagsAndEntries().forEach(pair -> {
-                        if (pair.getFirst() == tagKey) {
-                            for (RegistryEntry<Item> r : pair.getSecond()) {
-                                Identifier id = r.getKey().orElseThrow().getValue();
-                                Item item = itemRegistry.get(id);
-
-                                assert item != null;
-                                this.items.add(item.getDefaultStack());
-                            }
-                        }
-                    }));
-
-            entry.lootTable.ifPresent(lootTableId -> {
-                LootContextParameterSet context = new LootContextParameterSet.Builder(server.getWorld(World.OVERWORLD)).build(LootContextTypes.EMPTY);
-
-                LootTable lootTable = registries.getLootTable(lootTableId);
-                assert lootTable != null;
-                this.items.addAll(lootTable.generateLoot(context));
-            });
+            entry.addItems(this.items, server);
         }
     }
 
