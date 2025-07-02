@@ -5,6 +5,7 @@ import com.goopswagger.creativemenutweaks.networking.payload.ClearDataGroupManag
 import com.goopswagger.creativemenutweaks.networking.payload.SyncDataGroupCategoryPayload;
 import com.goopswagger.creativemenutweaks.networking.payload.SyncDataGroupEntriesPayload;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 public class CreativeMenuTweaksClient implements ClientModInitializer {
@@ -17,5 +18,9 @@ public class CreativeMenuTweaksClient implements ClientModInitializer {
                 context.client().execute(() -> DataItemGroupManager.groupData.put(payload.id(), payload.group())));
         ClientPlayNetworking.registerGlobalReceiver(SyncDataGroupEntriesPayload.ID, (payload, context) ->
                 context.client().execute(() -> DataItemGroupManager.groupData.get(payload.id()).entries.addAll(payload.stackList())));
+
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            client.execute(DataItemGroupManager::clear);
+        });
     }
 }

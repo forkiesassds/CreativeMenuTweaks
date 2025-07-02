@@ -44,10 +44,6 @@ public class DataItemGroup {
             PacketCodecs.STRING.collect(PacketCodecs::optional), dataItemGroup -> Optional.ofNullable(dataItemGroup.name()),
             ItemStack.PACKET_CODEC.collect(PacketCodecs::optional), dataItemGroup -> Optional.ofNullable(dataItemGroup.icon),
             PacketCodecs.BOOL.collect(PacketCodecs::optional), dataItemGroup -> Optional.of(dataItemGroup.replace),
-            ItemStack.LIST_PACKET_CODEC.collect(PacketCodecs::optional), dataItemGroup -> Optional.ofNullable(dataItemGroup.entries),
-            //I hate this with every single bit of me.
-            ((PacketCodec<ByteBuf, List<RegistryKey<LootTable>>>) (Object) RegistryKey.createPacketCodec(RegistryKeys.LOOT_TABLE)
-                    .collect(PacketCodecs.toCollection(DefaultedList::ofSize))).collect(PacketCodecs::optional), dataItemGroup -> Optional.ofNullable(dataItemGroup.lootTables),
             DataItemGroup::new
     );
 
@@ -68,6 +64,10 @@ public class DataItemGroup {
         this.lootTables = lootTables.orElse(new ArrayList<>());
 
         makeDummyGroup(id);
+    }
+
+    public DataItemGroup(Identifier id, Optional<String> name, Optional<ItemStack> icon, Optional<Boolean> replace) {
+        this(id, name, icon, replace, Optional.empty(), Optional.empty());
     }
 
     public void parseLootTable(MinecraftServer server) {
