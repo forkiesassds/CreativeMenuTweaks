@@ -70,7 +70,7 @@ public class DataItemGroup {
                 ReloadableRegistries.Lookup registries = server.getReloadableRegistries();
                 Registry<Item> itemRegistry = registries.getRegistryManager().get(RegistryKeys.ITEM);
 
-                Registries.ITEM.streamTagsAndEntries().forEach(pair -> {
+                itemRegistry.streamTagsAndEntries().forEach(pair -> {
                     if (pair.getFirst() == tag) {
                         for (RegistryEntry<Item> r : pair.getSecond()) {
                             Identifier id = r.getKey().orElseThrow().getValue();
@@ -84,9 +84,12 @@ public class DataItemGroup {
             }
         }
 
-        record LootTableEntry(RegistryKey<LootTable> lootTableId) implements Entry {
-            public static final Codec<LootTableEntry> CODEC = RegistryKey.createCodec(RegistryKeys.LOOT_TABLE).fieldOf("loot_table")
-                    .codec().xmap(LootTableEntry::new, LootTableEntry::lootTableId);
+        record LootTableEntry(RegistryKey<LootTable> lootTableId, Optional<Long> seed) implements Entry {
+            public static final Codec<LootTableEntry> CODEC = RecordCodecBuilder.create(instance ->
+                    instance.group(
+                            RegistryKey.createCodec(RegistryKeys.LOOT_TABLE).fieldOf("loot_table").forGetter(LootTableEntry::lootTableId),
+                            Codec.LONG.optionalFieldOf("seed").forGetter(LootTableEntry::seed)
+                    ).apply(instance, LootTableEntry::new));
 
             @Override
             public void addItems(List<ItemStack> items, MinecraftServer server) {
@@ -95,19 +98,27 @@ public class DataItemGroup {
 
                 LootTable lootTable = registries.getLootTable(lootTableId);
                 assert lootTable != null;
-                items.addAll(lootTable.generateLoot(context));
+                List<ItemStack> loot;
+
+                if (seed.isPresent()) {
+                    loot = lootTable.generateLoot(context, seed.get());
+                } else {
+                    loot = lootTable.generateLoot(context);
+                }
+
+                items.addAll(loot);
             }
         }
     }
 
     public static final Codec<DataItemGroup> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                            Identifier.CODEC.fieldOf("id").forGetter(DataItemGroup::id),
-                            Codec.STRING.optionalFieldOf("name").forGetter(dataItemGroup -> Optional.ofNullable(dataItemGroup.name())),
-                            ItemStack.CODEC.optionalFieldOf("icon").forGetter(dataItemGroup -> Optional.ofNullable(dataItemGroup.icon)),
-                            Codec.BOOL.optionalFieldOf("replace").forGetter(dataItemGroup -> Optional.of(dataItemGroup.replace)),
-                            Entry.CODEC.listOf().optionalFieldOf("entries").forGetter(dataItemGroup -> Optional.ofNullable(dataItemGroup.entries)))
-                    .apply(instance, DataItemGroup::new));
+                    Identifier.CODEC.fieldOf("id").forGetter(DataItemGroup::id),
+                    Codec.STRING.optionalFieldOf("name").forGetter(dataItemGroup -> Optional.ofNullable(dataItemGroup.name())),
+                    ItemStack.CODEC.optionalFieldOf("icon").forGetter(dataItemGroup -> Optional.ofNullable(dataItemGroup.icon)),
+                    Codec.BOOL.optionalFieldOf("replace").forGetter(dataItemGroup -> Optional.of(dataItemGroup.replace)),
+                    Entry.CODEC.listOf().optionalFieldOf("entries").forGetter(dataItemGroup -> Optional.ofNullable(dataItemGroup.entries))
+            ).apply(instance, DataItemGroup::new));
 
     public static final PacketCodec<RegistryByteBuf, DataItemGroup> PACKET_CODEC = PacketCodec.tuple(
             Identifier.PACKET_CODEC, DataItemGroup::id,

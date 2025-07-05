@@ -15,7 +15,8 @@
       "count": 1
     },
     {
-      "loot_table": "minecraft:chests/ancient_city"
+      "loot_table": "minecraft:chests/ancient_city",
+      "seed": 1234
     },
     {
       "id": "minecraft:redstone_block",
@@ -23,6 +24,10 @@
     },
     {
       "tag": "#minecraft:wool"
+    },
+    {
+      "loot_table": "minecraft:chests/bastion_treasure",
+      "seed": 1337
     }
   ]
 }
