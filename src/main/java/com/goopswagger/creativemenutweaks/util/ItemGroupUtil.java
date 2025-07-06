@@ -32,15 +32,6 @@ public class ItemGroupUtil {
             }
         }
 
-        offset = 0;
-        for (ItemGroup group : groups) {
-            if (group.getType() != ItemGroup.Type.CATEGORY || group.isSpecial())
-                continue;
-
-            group.row = offset < 5 ? ItemGroup.Row.TOP : ItemGroup.Row.BOTTOM;
-            offset = ++offset % 10;
-        }
-
         return groups;
     }
 }
