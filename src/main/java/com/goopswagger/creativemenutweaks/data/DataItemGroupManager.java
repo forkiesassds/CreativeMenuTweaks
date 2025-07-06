@@ -1,8 +1,8 @@
 package com.goopswagger.creativemenutweaks.data;
 
 import com.google.common.collect.Maps;
+import com.goopswagger.creativemenutweaks.CreativeMenuTweaks;
 import com.goopswagger.creativemenutweaks.networking.payload.ClearDataGroupManagerPayload;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.ReloadableRegistries;
@@ -44,7 +44,7 @@ public class DataItemGroupManager {
     }
 
     public static void sync(ServerPlayerEntity player) {
-        ServerPlayNetworking.send(player, new ClearDataGroupManagerPayload());
+        CreativeMenuTweaks.getNetworkHelper().sendToPlayer(player, new ClearDataGroupManagerPayload());
         groupData.forEach((identifier, dataItemGroup) -> dataItemGroup.sync(player));
     }
 }

@@ -1,0 +1,81 @@
+plugins {
+    id "architectury-plugin" version "3.4.+"
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+}
+
+apply plugin: "dev.architectury.loom"
+
+version = "${rootProject.mod_version}+${rootProject.minecraft_version}"
+base {
+    archivesName.set("${rootProject.archives_base_name}-fabric")
+}
+
+architectury {
+    platformSetupLoomIde()
+    fabric()
+}
+
+loom {
+    accessWidenerPath = getRootProject().loom.accessWidenerPath
+}
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentFabric.extendsFrom common
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+    mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+
+    // Fabric API. This is technically optional, but you probably want it anyway.
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+
+    common(project(path: rootProject.path, configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: rootProject.path, configuration: "transformProductionFabric")) { transitive false }
+}
+
+processResources {
+    filesMatching("fabric.mod.json") {
+        expand "version": rootProject.version
+    }
+
+    from(rootProject.file("src/main/resources")) {
+        include "**/**"
+    }
+}
+
+var outDir = rootProject.layout.buildDirectory.dir("libs/fabric")
+shadowJar {
+    exclude "architectury.common.json"
+
+    configurations = [project.configurations.shadowCommon]
+    archiveClassifier = "dev-shadow"
+}
+
+remapJar {
+    injectAccessWidener = true
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier = null
+    destinationDirectory = outDir
+}
+
+remapSourcesJar {
+    destinationDirectory = outDir
+}
+
+jar {
+    archiveClassifier = "dev"
+}
+
+java {
+    withSourcesJar()
+
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}

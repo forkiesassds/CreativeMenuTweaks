@@ -1,12 +1,13 @@
 package com.goopswagger.creativemenutweaks.data;
 
+import com.goopswagger.creativemenutweaks.CreativeMenuTweaks;
+import com.goopswagger.creativemenutweaks.networking.INetworkHelper;
 import com.goopswagger.creativemenutweaks.networking.payload.SyncDataGroupCategoryPayload;
 import com.goopswagger.creativemenutweaks.networking.payload.SyncDataGroupEntriesPayload;
 import com.goopswagger.creativemenutweaks.util.DummyItemGroup;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootTable;
@@ -144,8 +145,6 @@ public class DataItemGroup {
         this.replace = replace.orElse(false);
         this.entries = new ArrayList<>();
         entries.ifPresent(this.entries::addAll);
-
-        makeDummyGroup(id);
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -162,10 +161,13 @@ public class DataItemGroup {
     private DummyItemGroup dummyItemGroup;
 
     private void makeDummyGroup(Identifier id) {
-        dummyItemGroup = new DummyItemGroup(id);
+        dummyItemGroup = CreativeMenuTweaks.DUMMY_SUPPLIER.apply(id);
     }
 
     public DummyItemGroup getDummyItemGroup() {
+        if (this.dummyItemGroup == null)
+            makeDummyGroup(this.id);
+
         return this.dummyItemGroup;
     }
 
@@ -202,13 +204,14 @@ public class DataItemGroup {
     }
 
     public void sync(ServerPlayerEntity player) {
-        ServerPlayNetworking.send(player, new SyncDataGroupCategoryPayload(this.id, this));
+        INetworkHelper networkHelper = CreativeMenuTweaks.getNetworkHelper();
+        networkHelper.sendToPlayer(player, new SyncDataGroupCategoryPayload(this.id, this));
 
         int size = 16;
         for (int start = 0; start < items.size(); start += size) {
             int end = Math.min(start + size, items.size());
             List<ItemStack> sublist = items.subList(start, end);
-            ServerPlayNetworking.send(player, new SyncDataGroupEntriesPayload(this.id, sublist));
+            networkHelper.sendToPlayer(player, new SyncDataGroupEntriesPayload(this.id, sublist));
         }
     }
 }

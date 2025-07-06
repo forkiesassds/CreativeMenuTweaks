@@ -1,25 +1,33 @@
 package com.goopswagger.creativemenutweaks;
 
-import com.goopswagger.creativemenutweaks.data.DataItemGroupLoader;
-import com.goopswagger.creativemenutweaks.networking.payload.ClearDataGroupManagerPayload;
-import com.goopswagger.creativemenutweaks.networking.payload.SyncDataGroupCategoryPayload;
-import com.goopswagger.creativemenutweaks.networking.payload.SyncDataGroupEntriesPayload;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import com.goopswagger.creativemenutweaks.networking.INetworkHelper;
+import com.goopswagger.creativemenutweaks.util.DummyItemGroup;
 import net.minecraft.util.Identifier;
 
-public class CreativeMenuTweaks implements ModInitializer {
-    @Override
-    public void onInitialize() {
-        DataItemGroupLoader.init();
+import java.util.function.Function;
 
-        PayloadTypeRegistry.playS2C().register(ClearDataGroupManagerPayload.ID, ClearDataGroupManagerPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(SyncDataGroupCategoryPayload.ID, SyncDataGroupCategoryPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(SyncDataGroupEntriesPayload.ID, SyncDataGroupEntriesPayload.CODEC);
-    }
+public class CreativeMenuTweaks {
+    public static final String MOD_ID = "creativemenutweaks";
+
+    public static Function<Identifier, DummyItemGroup> DUMMY_SUPPLIER = null;
+    private static INetworkHelper networkHelper = null;
 
     public static Identifier makeModID(String path) {
-        return Identifier.of("creativemenutweaks", path);
+        return Identifier.of(MOD_ID, path);
+    }
+
+    public static void setNetworkHelper(INetworkHelper helper) {
+        if (networkHelper != null)
+            throw new RuntimeException("INetworkHelper is already implemented!");
+
+        networkHelper = helper;
+    }
+
+    public static INetworkHelper getNetworkHelper() {
+        if (networkHelper == null)
+            throw new RuntimeException("INetworkHelper not implemented!");
+
+        return networkHelper;
     }
 }
 

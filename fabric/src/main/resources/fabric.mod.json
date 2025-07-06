@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "creativemenutweaks",
+  "version": "${version}",
+  "name": "CreativeMenuTweaks",
+  "description": "A mod that improves the creative menu, including animations, sounds, and data driven item groups!",
+  "authors": [
+    "GoopSwagger"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/project/creative-menu-tweaks",
+    "sources": "https://github.com/Lucifixion/CreativeMenuTweaks"
+  },
+  "license": "MIT",
+  "icon": "assets/creativemenutweaks/icon.png",
+  "environment": "*",
+  "accessWidener": "creativemenutweaks.accesswidener",
+  "entrypoints": {
+    "main": [
+      "com.goopswagger.creativemenutweaks.fabric.CreativeMenuTweaksFabric"
+    ],
+    "client": [
+      "com.goopswagger.creativemenutweaks.fabric.CreativeMenuTweaksFabricClient"
+    ]
+  },
+  "mixins": [
+    "creativemenutweaks-common.mixins.json",
+    "creativemenutweaks-fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.7",
+    "minecraft": ">=1.21 <=1.21.1",
+    "java": ">=21"
+  }
+}

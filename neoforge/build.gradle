@@ -1,0 +1,94 @@
+plugins {
+    id "architectury-plugin" version "3.4.+"
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+}
+
+apply plugin: "dev.architectury.loom"
+
+version = "${rootProject.mod_version}+${rootProject.minecraft_version}"
+base {
+    archivesName.set("${rootProject.archives_base_name}-neoforge")
+}
+
+architectury {
+    platformSetupLoomIde()
+    neoForge()
+}
+
+loom {
+    accessWidenerPath = getRootProject().loom.accessWidenerPath
+}
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentNeoForge.extendsFrom common
+}
+
+repositories {
+    maven {
+        name "NeoForged"
+        url "https://maven.neoforged.net/releases"
+    }
+}
+
+dependencies {
+    minecraft "net.minecraft:minecraft:${rootProject.minecraft_version}"
+    if (property("yarn_mappings_neoforge_patch") != "N/A") {
+        mappings loom.layered() {
+            mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
+            mappings "dev.architectury:yarn-mappings-patch-neoforge:${rootProject.yarn_mappings_neoforge_patch}"
+        }
+    } else {
+        mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
+    }
+    
+    neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
+
+    common(project(path: rootProject.path, configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: rootProject.path, configuration: "transformProductionNeoForge")) { transitive false }
+}
+
+processResources {
+    filesMatching("META-INF/neoforge.mods.toml") {
+        expand "version": rootProject.version
+    }
+
+    from(rootProject.file("src/main/resources")) {
+        include "**/**"
+    }
+}
+
+var outDir = rootProject.layout.buildDirectory.dir("libs/neoforge")
+shadowJar {
+    exclude "fabric.mod.json"
+    exclude "architectury.common.json"
+
+    configurations = [project.configurations.shadowCommon]
+    archiveClassifier = "dev-shadow"
+}
+
+remapJar {
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier = null
+    atAccessWideners.add "creativemenutweaks.accesswidener"
+    destinationDirectory = outDir
+}
+
+remapSourcesJar {
+    destinationDirectory = outDir
+}
+
+jar {
+    archiveClassifier = "dev"
+}
+
+java {
+    withSourcesJar()
+
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}

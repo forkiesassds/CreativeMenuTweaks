@@ -7,7 +7,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
-import net.fabricmc.fabric.api.client.itemgroup.v1.FabricCreativeInventoryScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -28,10 +27,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = CreativeInventoryScreen.class, priority = 1001)
+@Mixin(value = CreativeInventoryScreen.class, priority = 1002)
 public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScreen<CreativeInventoryScreen.CreativeScreenHandler> {
 	@Shadow private static ItemGroup selectedTab;
-	@Unique private static ItemGroup hoveredTab;
+	@Unique private static ItemGroup knownSelectedTab, hoveredTab;
 
 	public CreativeInventoryScreenMixin(CreativeInventoryScreen.CreativeScreenHandler screenHandler, PlayerInventory playerInventory, Text text) {
 		super(screenHandler, playerInventory, text);
@@ -41,19 +40,21 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
 	@Shadow protected abstract int getTabX(ItemGroup group);
 	@Shadow protected abstract int getTabY(ItemGroup group);
 
+	@Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/AbstractInventoryScreen;init()V"))
+	private void setupKnownSelectedTab(CallbackInfo ci) {
+		knownSelectedTab = selectedTab;
+	}
+
 	@Inject(method = "init", at = @At(value = "TAIL"))
 	private void init(CallbackInfo ci) {
 		if (DataItemGroupManager.update) {
-			while (((FabricCreativeInventoryScreen) this).getCurrentPage() > 0)
-				((FabricCreativeInventoryScreen) this).switchToPreviousPage();
-
-			if (selectedTab instanceof DummyItemGroup dummy) {
+			if (knownSelectedTab instanceof DummyItemGroup dummy) {
 				Identifier id = dummy.getIdentifier();
 
 				ItemGroup group = ItemGroups.getDefaultTab();
 				if (DataItemGroupManager.groupData.containsKey(id)) {
 					DataItemGroup dataItemGroup = DataItemGroupManager.groupData.get(id);
-					group = dataItemGroup.getDummyItemGroup();
+					group = (ItemGroup) dataItemGroup.getDummyItemGroup();
 				}
 
 				selectedTab = group;

@@ -1,4 +1,4 @@
-package com.goopswagger.creativemenutweaks.mixin;
+package com.goopswagger.creativemenutweaks.fabric.mixin;
 
 import com.goopswagger.creativemenutweaks.data.DataItemGroup;
 import com.goopswagger.creativemenutweaks.data.DataItemGroupManager;
@@ -28,9 +28,10 @@ public abstract class ItemGroupsMixin {
         int offset = 0;
         for (DataItemGroup data : DataItemGroupManager.getCustomGroups().values()) {
             DummyItemGroup group = data.getDummyItemGroup();
+            //noinspection SuspiciousMethodCalls
             if (!groups.contains(group)) {
-                group.adjust(stream(), offset);
-                groups.add(group);
+                int index = group.adjust(stream(), offset);
+                groups.add(index, (ItemGroup) group);
                 offset++;
             }
         }

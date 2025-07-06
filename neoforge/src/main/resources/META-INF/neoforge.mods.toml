@@ -1,0 +1,32 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[mixins]]
+config = "creativemenutweaks-common.mixins.json"
+
+[[mixins]]
+config = "creativemenutweaks-neoforge.mixins.json"
+
+[[mods]]
+modId = "creativemenutweaks"
+version = "${version}"
+displayName = "CreativeMenuTweaks"
+authors = "GoopSwagger"
+credits = ""
+description = '''
+A mod that improves the creative menu, including animations, sounds, and data driven item groups!
+'''
+logoFile = "assets/creativemenutweaks/icon.png"
+
+[[dependencies.creativemenutweaks]]
+modId = "neoforge"
+versionRange = "[21.0,21.1]"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.creativemenutweaks]]
+modId = "minecraft"
+versionRange = "[1.21, 1.21.1]"
+ordering = "NONE"
+side = "BOTH"
