@@ -8,5 +8,8 @@
   "client": [
     "CreativeInventoryScreenMixin",
     "CreativeModeTabRegistryMixin"
+  ],
+  "mixins": [
+    "ItemGroupsMixin"
   ]
 }
