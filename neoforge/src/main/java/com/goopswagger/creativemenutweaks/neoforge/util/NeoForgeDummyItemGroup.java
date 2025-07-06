@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 public class NeoForgeDummyItemGroup extends ItemGroup implements DummyItemGroup {
     private static final int TABS_PER_PAGE = 10;
     private final Identifier identifier;
-    protected int page;
 
     public NeoForgeDummyItemGroup(Identifier identifier) {
         super(new ItemGroup.Builder(null, -1)
@@ -32,7 +31,6 @@ public class NeoForgeDummyItemGroup extends ItemGroup implements DummyItemGroup 
                 .toList();
 
         int count = sortedItemGroups.size() + i;
-        this.page = ((count / TABS_PER_PAGE));
         int pageIndex = count % TABS_PER_PAGE;
         ItemGroup.Row row = pageIndex < (TABS_PER_PAGE / 2) ? ItemGroup.Row.TOP : ItemGroup.Row.BOTTOM;
         this.row = row;

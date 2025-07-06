@@ -25,11 +25,20 @@ public class ItemGroupUtil {
         for (DataItemGroup data : DataItemGroupManager.getCustomGroups().values()) {
             DummyItemGroup group = data.getDummyItemGroup();
             //noinspection SuspiciousMethodCalls
-            if (!groups.contains(group)) {
+            if (!groups.contains(group) && ((ItemGroup) group).hasStacks()) {
                 int index = group.adjust(original.stream(), offset);
                 groups.add(index, (ItemGroup) group);
                 offset++;
             }
+        }
+
+        offset = 0;
+        for (ItemGroup group : groups) {
+            if (group.getType() != ItemGroup.Type.CATEGORY || group.isSpecial())
+                continue;
+
+            group.row = offset < 5 ? ItemGroup.Row.TOP : ItemGroup.Row.BOTTOM;
+            offset = ++offset % 10;
         }
 
         return groups;
