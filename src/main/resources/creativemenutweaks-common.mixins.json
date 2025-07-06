@@ -3,7 +3,8 @@
   "package": "com.goopswagger.creativemenutweaks.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ItemGroupMixin"
+    "ItemGroupMixin",
+    "ItemGroupsMixin"
   ],
   "client": [
     "CreativeInventoryScreenMixin"

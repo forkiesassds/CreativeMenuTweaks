@@ -18,14 +18,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Mixin(ItemGroup.class)
 public class ItemGroupMixin {
-    @Inject(method = {"getDisplayStacks", "getSearchTabStacks"}, at = @At(value = "TAIL"), cancellable = true)
+    @Inject(method = "getDisplayStacks", at = @At(value = "TAIL"), cancellable = true)
     private void getDisplayStacks(CallbackInfoReturnable<Collection<ItemStack>> cir) {
         Set<ItemStack> original = (Set<ItemStack>) cir.getReturnValue();
-        Collection<ItemStack> newList = modifyStackLists(original);
+        Collection<ItemStack> newList = modifyStackLists(original, false);
+
+        if (newList != original)
+            cir.setReturnValue(newList);
+    }
+
+    @Inject(method = "getSearchTabStacks", at = @At(value = "TAIL"), cancellable = true)
+    private void getSearchTabStacks(CallbackInfoReturnable<Collection<ItemStack>> cir) {
+        Set<ItemStack> original = (Set<ItemStack>) cir.getReturnValue();
+        Collection<ItemStack> newList = modifyStackLists(original, true);
 
         if (newList != original)
             cir.setReturnValue(newList);
@@ -40,7 +50,7 @@ public class ItemGroupMixin {
         )
     )
     private Set<ItemStack> hijackContains(ItemGroup instance, Operation<Set<ItemStack>> original) {
-        return (Set<ItemStack>) modifyStackLists(original.call(instance));
+        return (Set<ItemStack>) modifyStackLists(original.call(instance), false);
     }
 
     @WrapOperation(
@@ -52,7 +62,7 @@ public class ItemGroupMixin {
         )
     )
     private Collection<ItemStack> hijackHasStacks(ItemGroup instance, Operation<Collection<ItemStack>> original) {
-        return modifyStackLists(original.call(instance));
+        return modifyStackLists(original.call(instance), false);
     }
 
     @Inject(method = "getDisplayName", at = @At(value = "RETURN"), cancellable = true)
@@ -72,15 +82,19 @@ public class ItemGroupMixin {
     }
 
     @Unique
-    private Collection<ItemStack> modifyStackLists(Collection<ItemStack> original) {
+    private Collection<ItemStack> modifyStackLists(Collection<ItemStack> original, boolean limitedSize) {
         ItemGroup group = (((ItemGroup) (Object) this));
         Identifier identifier = ItemGroupUtil.getGroupIdentifier(group);
         if (DataItemGroupManager.groupData.containsKey(identifier)) {
             DataItemGroup dataItemGroup = DataItemGroupManager.groupData.get(identifier);
-            if (dataItemGroup.replace())
-                return new HashSet<>(dataItemGroup.items());
+            List<ItemStack> items = dataItemGroup.items();
+            if (limitedSize)
+                items = items.stream().map(i -> i.getCount() != 1 ? i.copyWithCount(1) : i).toList();
 
-            original.addAll(dataItemGroup.items());
+            if (dataItemGroup.replace())
+                return new HashSet<>(items);
+
+            original.addAll(items);
         }
 
         return original;
