@@ -14,7 +14,7 @@ import java.util.List;
 @Mixin(CreativeModeTabRegistry.class)
 public abstract class CreativeModeTabRegistryMixin {
     @Inject(method = "getSortedCreativeModeTabs", at = @At(value = "TAIL"), cancellable = true)
-    private static void getDisplayStacks(CallbackInfoReturnable<List<ItemGroup>> cir) {
+    private static void addCustomTabs(CallbackInfoReturnable<List<ItemGroup>> cir) {
         List<ItemGroup> original = cir.getReturnValue();
         List<ItemGroup> modified = ItemGroupUtil.addCustomItemGroups(original);
 
