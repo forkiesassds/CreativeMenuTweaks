@@ -31,13 +31,3 @@ public class CreativeMenuTweaksFabric implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(SyncDataGroupEntriesPayload.ID, SyncDataGroupEntriesPayload.CODEC);
     }
 }
-
-
-
-
-
-
-
-
-
-
