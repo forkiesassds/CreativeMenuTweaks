@@ -17,16 +17,6 @@ public abstract class CreativeModeTabRegistryMixin {
     private static void addCustomTabs(CallbackInfoReturnable<List<ItemGroup>> cir) {
         List<ItemGroup> original = cir.getReturnValue();
         List<ItemGroup> modified = ItemGroupUtil.addCustomItemGroups(original);
-
-        int offset = 0;
-        for (ItemGroup group : modified) {
-            if (group.getType() != ItemGroup.Type.CATEGORY || group.isSpecial())
-                continue;
-
-            group.row = offset < 5 ? ItemGroup.Row.TOP : ItemGroup.Row.BOTTOM;
-            offset = ++offset % 10;
-        }
-
         cir.setReturnValue(Collections.unmodifiableList(modified));
     }
 }
