@@ -8,6 +8,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public class NeoForgeDummyItemGroup extends ItemGroup implements DummyItemGroup {
     private static final int TABS_PER_PAGE = 10;
@@ -23,13 +24,13 @@ public class NeoForgeDummyItemGroup extends ItemGroup implements DummyItemGroup 
     }
 
     @Override
-    public int adjust(List<ItemGroup> list, int i) {
-        final List<ItemGroup> sortedItemGroups = list.stream()
+    public int adjust(Stream<ItemGroup> stream, int offset, int prevResult) {
+        final List<ItemGroup> sortedItemGroups = stream
                 .filter(group -> group.getType() == Type.CATEGORY && !group.isSpecial())
                 .filter(ItemGroup::shouldDisplay)
                 .toList();
 
-        int count = sortedItemGroups.size() + i;
+        int count = sortedItemGroups.size() + offset;
         int pageIndex = count % TABS_PER_PAGE;
         ItemGroup.Row row = pageIndex < (TABS_PER_PAGE / 2) ? ItemGroup.Row.TOP : ItemGroup.Row.BOTTOM;
         this.row = row;

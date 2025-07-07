@@ -21,14 +21,11 @@ public class ItemGroupUtil {
 
     public static List<ItemGroup> addCustomItemGroups(List<ItemGroup> original) {
         List<ItemGroup> groups = new ArrayList<>(original);
-        int offset = 0;
         for (DataItemGroup data : DataItemGroupManager.getCustomGroups().values()) {
             DummyItemGroup group = data.getDummyItemGroup();
             //noinspection SuspiciousMethodCalls
             if (!groups.contains(group) && ((ItemGroup) group).hasStacks()) {
-                int index = group.adjust(original, offset);
-                groups.add(index, (ItemGroup) group);
-                offset++;
+                groups.add((ItemGroup) group);
             }
         }
 

@@ -9,6 +9,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @SuppressWarnings("UnstableApiUsage")
 public class FabricDummyItemGroup extends ItemGroup implements FabricItemGroupImpl, DummyItemGroup {
@@ -23,13 +24,37 @@ public class FabricDummyItemGroup extends ItemGroup implements FabricItemGroupIm
     }
 
     @Override
-    public int adjust(List<ItemGroup> list, int i) {
-        final List<ItemGroup> sortedItemGroups = list.stream()
+    public int adjust(Stream<ItemGroup> stream, int offset, int prevResult) {
+        final List<ItemGroup> sortedItemGroups = stream
                 .filter(group -> group.getType() == Type.CATEGORY && !group.isSpecial())
                 .filter(ItemGroup::shouldDisplay)
                 .toList();
 
-        int count = sortedItemGroups.size() + i;
+        int count = 0;
+        boolean foundVoid = false;
+
+        if (prevResult < sortedItemGroups.size()) {
+            int pages = sortedItemGroups.size() / TABS_PER_PAGE;
+            int resume = prevResult == -1 ? 0 : (prevResult + 1) / TABS_PER_PAGE;
+            for (int page = resume; page <= pages; page++) {
+                int limit = page == pages ? sortedItemGroups.size() % TABS_PER_PAGE : TABS_PER_PAGE;
+                int resumePage = page == resume ? (prevResult + 1) % TABS_PER_PAGE : 0;
+
+                for (int group = resumePage; group < limit; group++) {
+                    int index = page * TABS_PER_PAGE + group;
+
+                    if (((FabricItemGroupImpl) sortedItemGroups.get(index)).fabric_getPage() != page) {
+                        count = index;
+                        foundVoid = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!foundVoid)
+            count = sortedItemGroups.size() + offset;
+
         this.page = ((count / TABS_PER_PAGE));
         int pageIndex = count % TABS_PER_PAGE;
         ItemGroup.Row row = pageIndex < (TABS_PER_PAGE / 2) ? ItemGroup.Row.TOP : ItemGroup.Row.BOTTOM;

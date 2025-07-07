@@ -1,26 +1,45 @@
 package com.goopswagger.creativemenutweaks.mixin.client;
 
+import com.goopswagger.creativemenutweaks.data.DataItemGroup;
+import com.goopswagger.creativemenutweaks.data.DataItemGroupManager;
+import com.goopswagger.creativemenutweaks.util.DummyItemGroup;
 import com.goopswagger.creativemenutweaks.util.ItemGroupUtil;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemStackSet;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@Mixin(ItemGroups.class)
+@Mixin(value = ItemGroups.class, priority = 1001)
 public abstract class ItemGroupsMixin {
     @Inject(method = {"getGroupsToDisplay", "getGroups"}, at = @At(value = "TAIL"), cancellable = true)
     private static void getGroups(CallbackInfoReturnable<List<ItemGroup>> cir) {
         cir.setReturnValue(ItemGroupUtil.addCustomItemGroups(cir.getReturnValue()));
+    }
+
+    @Inject(method = "updateEntries", at = @At("TAIL"))
+    private static void adjustDummies(ItemGroup.DisplayContext displayContext, CallbackInfo ci) {
+        int offset = 0;
+        int prevResult = -1;
+
+        for (DataItemGroup data : DataItemGroupManager.getCustomGroups().values()) {
+            DummyItemGroup group = data.getDummyItemGroup();
+            int index = group.adjust(Registries.ITEM_GROUP.stream(), offset, prevResult);
+            offset++;
+
+            prevResult = index;
+        }
     }
 
     /**
