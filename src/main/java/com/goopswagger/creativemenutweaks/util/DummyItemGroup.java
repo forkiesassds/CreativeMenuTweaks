@@ -3,9 +3,9 @@ package com.goopswagger.creativemenutweaks.util;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.util.Identifier;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 public interface DummyItemGroup {
-    int adjust(Stream<ItemGroup> stream, int i);
+    int adjust(List<ItemGroup> list, int i);
     Identifier getIdentifier();
 }

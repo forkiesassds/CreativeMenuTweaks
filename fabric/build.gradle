@@ -27,6 +27,17 @@ configurations {
     developmentFabric.extendsFrom common
 }
 
+repositories {
+    maven {
+        name = "Terraformers"
+        url = "https://maven.terraformersmc.com/"
+    }
+    maven {
+        name 'Xander Maven'
+        url 'https://maven.isxander.dev/releases'
+    }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
     mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
@@ -34,6 +45,11 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+    modImplementation("com.terraformersmc:modmenu:${rootProject.modmenu_version}")
+    modImplementation("dev.isxander:yet-another-config-lib:${project.yacl_version}-fabric") {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+        exclude group: "net.fabricmc", module: "fabric-language-kotlin"
+    }
 
     common(project(path: rootProject.path, configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: rootProject.path, configuration: "transformProductionFabric")) { transitive false }
@@ -47,6 +63,7 @@ processResources {
     from(rootProject.file("src/main/resources")) {
         include "**/**"
         exclude "creativemenutweaks.accesswidener"
+        exclude "creativemenutweaks-common.mixins.json"
     }
 }
 

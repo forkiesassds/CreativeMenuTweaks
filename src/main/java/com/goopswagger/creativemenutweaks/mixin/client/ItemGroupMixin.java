@@ -1,4 +1,4 @@
-package com.goopswagger.creativemenutweaks.mixin;
+package com.goopswagger.creativemenutweaks.mixin.client;
 
 import com.goopswagger.creativemenutweaks.data.DataItemGroup;
 import com.goopswagger.creativemenutweaks.data.DataItemGroupManager;

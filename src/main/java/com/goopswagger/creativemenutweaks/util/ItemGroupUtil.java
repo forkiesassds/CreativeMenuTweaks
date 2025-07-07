@@ -26,7 +26,7 @@ public class ItemGroupUtil {
             DummyItemGroup group = data.getDummyItemGroup();
             //noinspection SuspiciousMethodCalls
             if (!groups.contains(group) && ((ItemGroup) group).hasStacks()) {
-                int index = group.adjust(original.stream(), offset);
+                int index = group.adjust(original, offset);
                 groups.add(index, (ItemGroup) group);
                 offset++;
             }

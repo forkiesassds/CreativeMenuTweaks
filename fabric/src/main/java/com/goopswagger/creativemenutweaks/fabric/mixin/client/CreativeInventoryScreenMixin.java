@@ -1,4 +1,4 @@
-package com.goopswagger.creativemenutweaks.fabric.mixin;
+package com.goopswagger.creativemenutweaks.fabric.mixin.client;
 
 import com.goopswagger.creativemenutweaks.data.DataItemGroupManager;
 import net.fabricmc.fabric.api.client.itemgroup.v1.FabricCreativeInventoryScreen;

@@ -9,7 +9,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @SuppressWarnings("UnstableApiUsage")
 public class FabricDummyItemGroup extends ItemGroup implements FabricItemGroupImpl, DummyItemGroup {
@@ -24,8 +23,8 @@ public class FabricDummyItemGroup extends ItemGroup implements FabricItemGroupIm
     }
 
     @Override
-    public int adjust(Stream<ItemGroup> stream, int i) {
-        final List<ItemGroup> sortedItemGroups = stream
+    public int adjust(List<ItemGroup> list, int i) {
+        final List<ItemGroup> sortedItemGroups = list.stream()
                 .filter(group -> group.getType() == Type.CATEGORY && !group.isSpecial())
                 .filter(ItemGroup::shouldDisplay)
                 .toList();
@@ -57,6 +56,6 @@ public class FabricDummyItemGroup extends ItemGroup implements FabricItemGroupIm
 
     @Override
     public void fabric_setPage(int page) {
-
+        this.page = page;
     }
 }

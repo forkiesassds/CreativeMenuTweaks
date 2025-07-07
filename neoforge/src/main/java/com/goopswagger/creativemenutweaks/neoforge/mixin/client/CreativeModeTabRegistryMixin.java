@@ -1,4 +1,4 @@
-package com.goopswagger.creativemenutweaks.neoforge.mixin;
+package com.goopswagger.creativemenutweaks.neoforge.mixin.client;
 
 import com.goopswagger.creativemenutweaks.util.ItemGroupUtil;
 import net.minecraft.item.ItemGroup;

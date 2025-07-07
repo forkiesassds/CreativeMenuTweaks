@@ -1,5 +1,7 @@
-package com.goopswagger.creativemenutweaks.mixin;
+package com.goopswagger.creativemenutweaks.mixin.client;
 
+import com.goopswagger.creativemenutweaks.client.CreativeMenuTweaksClient;
+import com.goopswagger.creativemenutweaks.client.Config;
 import com.goopswagger.creativemenutweaks.data.DataItemGroup;
 import com.goopswagger.creativemenutweaks.data.DataItemGroupManager;
 import com.goopswagger.creativemenutweaks.util.DummyItemGroup;
@@ -66,6 +68,9 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
 
 	@Inject(method = "mouseReleased", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/CreativeInventoryScreen;setSelectedTab(Lnet/minecraft/item/ItemGroup;)V", shift = At.Shift.AFTER))
 	private void mouseReleased(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+		if (!CreativeMenuTweaksClient.config.tabSounds)
+			return;
+
         assert client != null;
         client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 	}
@@ -76,7 +81,12 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
 	}
 
 	@WrapOperation(method = "renderTabTooltipIfHovered", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTooltip(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;II)V"))
-	private void injected(DrawContext instance, TextRenderer textRenderer, Text text, int x, int y, Operation<Void> original, @Local ItemGroup group) {
+	private void changeTooltipDrawing(DrawContext instance, TextRenderer textRenderer, Text text, int x, int y, Operation<Void> original, @Local ItemGroup group) {
+		if (CreativeMenuTweaksClient.config.tooltipMode == Config.TooltipMode.FLOATING) {
+			original.call(instance, textRenderer, text, x, y);
+			return;
+		}
+
 		int x2 = this.getTabX(group);
 		int y2 = this.getTabY(group);
 		int offset = 0;
@@ -86,9 +96,9 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
 	}
 
 	@WrapOperation(method = "renderTabIcon", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lnet/minecraft/util/Identifier;IIII)V"))
-	private void injected(DrawContext instance, Identifier texture, int x, int y, int width, int height, Operation<Void> original, @Local ItemGroup group) {
+	private void popoutTooltipIcon(DrawContext instance, Identifier texture, int x, int y, int width, int height, Operation<Void> original, @Local ItemGroup group) {
 		int offset = 0;
-		if (group != selectedTab && group == hoveredTab) {
+		if (CreativeMenuTweaksClient.config.tabPopout && group != selectedTab && group == hoveredTab) {
 			offset = group.getRow() == ItemGroup.Row.TOP ? -1 : 1;
 		}
 //		instance.drawTexture(texture, x, y + offset, u, v, width, height - offset);
@@ -97,6 +107,9 @@ public abstract class CreativeInventoryScreenMixin extends AbstractInventoryScre
 
 	@Inject(method = "renderTabIcon", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemGroup;getIcon()Lnet/minecraft/item/ItemStack;"))
 	private void adjustTabRenderY(DrawContext context, ItemGroup group, CallbackInfo ci, @Local(ordinal = 2) LocalIntRef y) {
+		if (!CreativeMenuTweaksClient.config.tabPopout)
+			return;
+
 		int offset = 0;
 		if (group == selectedTab) {
 			offset = group.getRow() == ItemGroup.Row.TOP ? -2 : 4;

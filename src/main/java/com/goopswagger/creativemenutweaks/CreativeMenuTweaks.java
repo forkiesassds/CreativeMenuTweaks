@@ -3,11 +3,16 @@ package com.goopswagger.creativemenutweaks;
 import com.goopswagger.creativemenutweaks.networking.INetworkHelper;
 import com.goopswagger.creativemenutweaks.util.DummyItemGroup;
 import net.minecraft.util.Identifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.Function;
 
 public class CreativeMenuTweaks {
     public static final String MOD_ID = "creativemenutweaks";
+    public static final String MOD_NAME = "CreativeMenuTweaks";
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 
     public static Function<Identifier, DummyItemGroup> DUMMY_SUPPLIER = null;
     private static INetworkHelper networkHelper = null;

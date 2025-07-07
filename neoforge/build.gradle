@@ -32,6 +32,10 @@ repositories {
         name "NeoForged"
         url "https://maven.neoforged.net/releases"
     }
+    maven {
+        name 'Xander Maven'
+        url 'https://maven.isxander.dev/releases'
+    }
 }
 
 dependencies {
@@ -46,6 +50,13 @@ dependencies {
     }
     
     neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
+    modImplementation("dev.isxander:yet-another-config-lib:${rootProject.yacl_version}-neoforge") {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+        exclude group: "thedarkcolour", module: "kotlinforforge-neoforge"
+    }
+
+    forgeRuntimeLibrary include("org.quiltmc.parsers:json:0.2.1")
+    forgeRuntimeLibrary include("org.quiltmc.parsers:gson:0.2.1")
 
     common(project(path: rootProject.path, configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: rootProject.path, configuration: "transformProductionNeoForge")) { transitive false }
