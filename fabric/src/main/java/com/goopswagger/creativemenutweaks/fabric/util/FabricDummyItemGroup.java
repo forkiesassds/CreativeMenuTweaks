@@ -49,6 +49,9 @@ public class FabricDummyItemGroup extends ItemGroup implements FabricItemGroupIm
                         break;
                     }
                 }
+
+                if (foundVoid)
+                    break;
             }
         }
 
