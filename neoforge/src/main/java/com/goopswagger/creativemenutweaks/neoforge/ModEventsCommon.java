@@ -33,7 +33,7 @@ public class ModEventsCommon {
     public static void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
         CreativeMenuTweaks.setNetworkHelper(new NetworkHelperImpl());
 
-        PayloadRegistrar registrar = event.registrar("1");
+        PayloadRegistrar registrar = event.registrar("1").optional();
         MinecraftClient client = MinecraftClient.getInstance();
 
         registrar.playToClient(
