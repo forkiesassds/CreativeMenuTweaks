@@ -62,7 +62,7 @@ public abstract class ItemGroupsMixin {
         registry.iterator().forEachRemaining(groups::add);
 
         List<ItemGroup> modified = ItemGroupUtil.addCustomItemGroups(groups);
-        for(ItemGroup itemGroup : modified) {
+        for (ItemGroup itemGroup : modified) {
             if (itemGroup.getType() != ItemGroup.Type.SEARCH) {
                 set.addAll(itemGroup.getSearchTabStacks());
             }

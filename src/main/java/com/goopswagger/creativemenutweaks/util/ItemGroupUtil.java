@@ -13,10 +13,8 @@ public class ItemGroupUtil {
     public static Identifier getGroupIdentifier(ItemGroup group) {
         if (group instanceof DummyItemGroup dummyGroup)
             return dummyGroup.getIdentifier();
-        else if (Registries.ITEM_GROUP.getId(group) != null) {
-            return Registries.ITEM_GROUP.getId(group);
-        }
-        return null;
+
+        return Registries.ITEM_GROUP.getId(group);
     }
 
     public static List<ItemGroup> addCustomItemGroups(List<ItemGroup> original) {

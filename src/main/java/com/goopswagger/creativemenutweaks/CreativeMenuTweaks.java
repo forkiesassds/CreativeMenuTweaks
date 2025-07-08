@@ -35,13 +35,3 @@ public class CreativeMenuTweaks {
         return networkHelper;
     }
 }
-
-
-
-
-
-
-
-
-
-
