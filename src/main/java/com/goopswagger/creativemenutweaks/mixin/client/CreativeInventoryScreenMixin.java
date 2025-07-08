@@ -1,7 +1,7 @@
 package com.goopswagger.creativemenutweaks.mixin.client;
 
 import com.goopswagger.creativemenutweaks.client.CreativeMenuTweaksClient;
-import com.goopswagger.creativemenutweaks.client.Config;
+import com.goopswagger.creativemenutweaks.client.config.Config;
 import com.goopswagger.creativemenutweaks.data.DataItemGroup;
 import com.goopswagger.creativemenutweaks.data.DataItemGroupManager;
 import com.goopswagger.creativemenutweaks.util.DummyItemGroup;

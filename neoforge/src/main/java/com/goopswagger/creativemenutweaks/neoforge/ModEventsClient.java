@@ -1,8 +1,8 @@
 package com.goopswagger.creativemenutweaks.neoforge;
 
 import com.goopswagger.creativemenutweaks.CreativeMenuTweaks;
-import com.goopswagger.creativemenutweaks.client.Config;
-import com.goopswagger.creativemenutweaks.client.ConfigHelper;
+import com.goopswagger.creativemenutweaks.client.config.Config;
+import com.goopswagger.creativemenutweaks.client.config.ConfigHelper;
 import com.goopswagger.creativemenutweaks.client.CreativeMenuTweaksClient;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;

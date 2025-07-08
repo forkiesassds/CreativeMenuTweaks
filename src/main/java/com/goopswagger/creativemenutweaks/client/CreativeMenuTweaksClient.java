@@ -1,5 +1,6 @@
 package com.goopswagger.creativemenutweaks.client;
 
+import com.goopswagger.creativemenutweaks.client.config.Config;
 import com.goopswagger.creativemenutweaks.data.DataItemGroupManager;
 import net.minecraft.client.MinecraftClient;
 

@@ -1,4 +1,4 @@
-package com.goopswagger.creativemenutweaks.client;
+package com.goopswagger.creativemenutweaks.client.config;
 
 import com.goopswagger.creativemenutweaks.CreativeMenuTweaks;
 import dev.isxander.yacl3.api.*;

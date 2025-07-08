@@ -1,7 +1,7 @@
 package com.goopswagger.creativemenutweaks.fabric.client;
 
 import com.goopswagger.creativemenutweaks.client.CreativeMenuTweaksClient;
-import com.goopswagger.creativemenutweaks.client.Config;
+import com.goopswagger.creativemenutweaks.client.config.Config;
 import com.goopswagger.creativemenutweaks.networking.S2CPayloadHandlers;
 import com.goopswagger.creativemenutweaks.networking.payload.ClearDataGroupManagerPayload;
 import com.goopswagger.creativemenutweaks.networking.payload.SyncDataGroupCategoryPayload;

@@ -1,4 +1,4 @@
-package com.goopswagger.creativemenutweaks.client;
+package com.goopswagger.creativemenutweaks.client.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

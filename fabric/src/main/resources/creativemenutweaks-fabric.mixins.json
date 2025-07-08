@@ -3,7 +3,8 @@
   "package": "com.goopswagger.creativemenutweaks.fabric.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "client.CreativeInventoryScreenMixin"
+    "client.CreativeInventoryScreenMixin",
+    "client.ItemGroupMixin"
   ],
   "injectors": {
     "defaultRequire": 1
