@@ -1,0 +1,22 @@
+{
+  "id": "minecraft:natural_blocks",
+  "name": "Tweaked!",
+  "icon": {
+    "id": "minecraft:carrot",
+    "count": 1
+  },
+  "replace": true,
+  "entries": [
+    {
+      "id": "minecraft:potato",
+      "count": 1
+    },
+    {
+      "id": "minecraft:player_head",
+      "count": 1,
+      "components": {
+        "profile": "NyarchLinux"
+      }
+    }
+  ]
+}

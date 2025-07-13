@@ -15,10 +15,6 @@ architectury {
     neoForge()
 }
 
-loom {
-    accessWidenerPath = getRootProject().loom.accessWidenerPath
-}
-
 configurations {
     common
     shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
@@ -85,7 +81,6 @@ remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
     archiveClassifier = null
-    atAccessWideners.add "creativemenutweaks.accesswidener"
     destinationDirectory = outDir
 }
 

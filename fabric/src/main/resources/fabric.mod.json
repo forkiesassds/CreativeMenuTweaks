@@ -1,10 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "creativemenutweaks",
+  "id": "tweaked_creative_menu",
   "version": "${version}",
-  "name": "CreativeMenuTweaks",
+  "name": "Tweaked Creative Menu",
   "description": "A mod that improves the creative menu, including animations, sounds, and data driven item groups!",
   "authors": [
+    "icanttellyou",
     "GoopSwagger"
   ],
   "contact": {
@@ -12,23 +13,23 @@
     "sources": "https://github.com/Lucifixion/CreativeMenuTweaks"
   },
   "license": "MIT",
-  "icon": "assets/creativemenutweaks/icon.png",
+  "icon": "assets/tweaked_creative_menu/icon.png",
   "environment": "*",
-  "accessWidener": "creativemenutweaks.accesswidener",
+  "accessWidener": "tweaked_creative_menu.accesswidener",
   "entrypoints": {
     "main": [
-      "com.goopswagger.creativemenutweaks.fabric.CreativeMenuTweaksFabric"
+      "me.icanttellyou.tweakedcreativemenu.fabric.TweakedCreativeMenuFabric"
     ],
     "client": [
-      "com.goopswagger.creativemenutweaks.fabric.client.CreativeMenuTweaksFabricClient"
+      "me.icanttellyou.tweakedcreativemenu.fabric.client.TweakedCreativeMenuFabricClient"
     ],
     "modmenu": [
-      "com.goopswagger.creativemenutweaks.fabric.client.ModMenuIntegration"
+      "me.icanttellyou.tweakedcreativemenu.fabric.client.ModMenuIntegration"
     ]
   },
   "mixins": [
-    "creativemenutweaks-common.mixins.json",
-    "creativemenutweaks-fabric.mixins.json"
+    "tweaked_creative_menu-common.mixins.json",
+    "tweaked_creative_menu-fabric.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.15.7",

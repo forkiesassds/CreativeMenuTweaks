@@ -16,7 +16,7 @@ architectury {
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/creativemenutweaks.accesswidener")
+    accessWidenerPath = file("src/main/resources/tweaked_creative_menu.accesswidener")
 }
 
 configurations {
@@ -62,8 +62,7 @@ processResources {
 
     from(rootProject.file("src/main/resources")) {
         include "**/**"
-        exclude "creativemenutweaks.accesswidener"
-        exclude "creativemenutweaks-common.mixins.json"
+        exclude "tweaked_creative_menu-common.mixins.json"
     }
 }
 

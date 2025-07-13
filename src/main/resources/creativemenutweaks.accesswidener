@@ -1,6 +1,0 @@
-accessWidener v2 named
-
-accessible field net/minecraft/item/ItemGroup row Lnet/minecraft/item/ItemGroup$Row;
-mutable field net/minecraft/item/ItemGroup row Lnet/minecraft/item/ItemGroup$Row;
-accessible field net/minecraft/item/ItemGroup column I
-mutable field net/minecraft/item/ItemGroup column I

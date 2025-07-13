@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "me.icanttellyou.tweakedcreativemenu.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "client.CreativeInventoryScreenMixin",
+    "client.ItemGroupAccessor",
+    "client.ItemGroupMixin",
+    "client.ItemGroupsMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

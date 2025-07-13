@@ -34,10 +34,6 @@ dependencies {
 	}
 }
 
-loom {
-	accessWidenerPath = file("src/main/resources/creativemenutweaks.accesswidener")
-}
-
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
 }

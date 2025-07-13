@@ -3,35 +3,35 @@ loaderVersion = "[1,)"
 license = "MIT"
 
 [[mixins]]
-config = "creativemenutweaks-common.mixins.json"
+config = "tweaked_creative_menu-common.mixins.json"
 
 [[mixins]]
-config = "creativemenutweaks-neoforge.mixins.json"
+config = "tweaked_creative_menu-neoforge.mixins.json"
 
 [[mods]]
-modId = "creativemenutweaks"
+modId = "tweaked_creative_menu"
 version = "${version}"
-displayName = "CreativeMenuTweaks"
-authors = "GoopSwagger"
+displayName = "Tweaked Creative Menu"
+authors = "icanttellyou, GoopSwagger"
 credits = ""
 description = '''
 A mod that improves the creative menu, including animations, sounds, and data driven item groups!
 '''
-logoFile = "assets/creativemenutweaks/icon.png"
+logoFile = "assets/tweaked_creative_menu/icon.png"
 
-[[dependencies.creativemenutweaks]]
+[[dependencies.tweaked_creative_menu]]
 modId = "neoforge"
 versionRange = "[21.0,21.1]"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.creativemenutweaks]]
+[[dependencies.tweaked_creative_menu]]
 modId = "minecraft"
 versionRange = "[1.21, 1.21.1]"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.creativemenutweaks]]
+[[dependencies.tweaked_creative_menu]]
 modId = "yet_another_config_lib_v3"
 type = "optional"
 ordering = "NONE"

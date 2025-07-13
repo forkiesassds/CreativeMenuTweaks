@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "me.icanttellyou.tweakedcreativemenu.neoforge.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "client.CreativeModeTabRegistryMixin",
+    "client.ItemGroupMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

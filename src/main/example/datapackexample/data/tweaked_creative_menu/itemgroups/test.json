@@ -1,0 +1,22 @@
+{
+  "id": "minecraft:colored_blocks",
+  "name": "Coloured Blocks... and a potato???",
+  "icon": {
+    "id": "minecraft:potato",
+    "count": 1
+  },
+  "replace": false,
+  "entries": [
+    {
+      "id": "minecraft:potato",
+      "count": 1,
+      "components": {
+        "custom_name": "{\"text\": \"Tater (real?)\"}",
+        "enchantments": {
+          "sharpness": 5,
+          "mending": 1
+        }
+      }
+    }
+  ]
+}
