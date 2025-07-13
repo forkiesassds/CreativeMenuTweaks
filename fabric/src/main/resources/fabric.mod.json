@@ -3,7 +3,7 @@
   "id": "tweaked_creative_menu",
   "version": "${version}",
   "name": "Tweaked Creative Menu",
-  "description": "A mod that improves the creative menu, including animations, sounds, and data driven item groups!",
+  "description": "A mod that improves the creative menu, including animations and sounds, which can be configured, along with data driven item groups!",
   "authors": [
     "icanttellyou",
     "GoopSwagger"

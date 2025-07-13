@@ -15,7 +15,7 @@ displayName = "Tweaked Creative Menu"
 authors = "icanttellyou, GoopSwagger"
 credits = ""
 description = '''
-A mod that improves the creative menu, including animations, sounds, and data driven item groups!
+A mod that improves the creative menu, including animations and sounds, which can be configured, along with data driven item groups!
 '''
 logoFile = "assets/tweaked_creative_menu/icon.png"
 
