@@ -1,6 +1,7 @@
 plugins {
     id "architectury-plugin" version "3.4.+"
     id "com.github.johnrengelman.shadow" version "8.1.1"
+    id "com.modrinth.minotaur" version "2.+"
 }
 
 apply plugin: "dev.architectury.loom"
@@ -95,4 +96,19 @@ java {
 
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
+}
+
+modrinth {
+    token = System.getenv("MODRINTH_TOKEN")
+    projectId = rootProject.modrinth_project_id
+    versionName = "Tweaked Creative Menu " + project.version
+    versionNumber = rootProject.version
+    gameVersions = rootProject.supported_versions.split(",").toList()
+    changelog = rootProject.file("CHANGELOG.md").text
+    loaders = ["fabric", "quilt"]
+    uploadFile = tasks.remapJar
+    dependencies {
+        required.project "fabric-api"
+        optional.project "yacl"
+    }
 }
