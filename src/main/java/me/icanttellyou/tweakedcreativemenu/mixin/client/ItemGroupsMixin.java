@@ -1,6 +1,7 @@
 package me.icanttellyou.tweakedcreativemenu.mixin.client;
 
 import me.icanttellyou.tweakedcreativemenu.client.CreativeMenuConstants;
+import me.icanttellyou.tweakedcreativemenu.client.TweakedCreativeMenuClient;
 import me.icanttellyou.tweakedcreativemenu.client.imixin.PaginatedItemGroup;
 import me.icanttellyou.tweakedcreativemenu.util.ItemGroupUtil;
 import net.minecraft.item.ItemGroup;
@@ -32,7 +33,7 @@ public abstract class ItemGroupsMixin {
     private static void adjustGroupOrder(ItemGroup.DisplayContext displayContext, CallbackInfo ci) {
         int count = 0;
 
-        for (ItemGroup group : ItemGroups.getGroupsToDisplay()) {
+        for (ItemGroup group : TweakedCreativeMenuClient.ITEM_GROUP_GETTER.get()) {
             final PaginatedItemGroup paginatedItemGroup = (PaginatedItemGroup) group;
 
             if (CreativeMenuConstants.COMMON_GROUPS.contains(paginatedItemGroup)) {
